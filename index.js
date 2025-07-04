@@ -1,12 +1,17 @@
 import { config } from "dotenv";
 import express from "express";
 import chalk from "chalk";
+import db_connection from "./src/configs/db_connection.config.js";
 
 config({path:"./.env"})
 
 const app=express();
 const port=process.env.PORT || 3000;
+app.use(express.json())
 
+
+
+export const dbConnection=await db_connection();
 
 app.get('/', (req, res) => {
         res.send('Hello World!')
