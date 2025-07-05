@@ -63,3 +63,38 @@ export const logout = (req, res) => {
     res.clearCookie('refreshToken');
     res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
+
+export const refreshToken = async (req, res,next) => {
+    const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your_refresh_secret';
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+        return res.status(401).json({ success: false, message: 'Refresh token not found' });
+    }
+    try {
+        const decoded = jwt.verify(refreshToken,REFRESH_TOKEN_SECRET);
+        dbConnection.query(`SELECT * FROM users WHERE id = ?`, [decoded.id], (err, result) => {
+            if (err) {
+                console.error(err);
+                res.status(500).json({ success: false, message: 'Error checking email' });
+            }
+            if(result.length === 0)
+                return res.status(401).json({ success: false, message: 'user not found may be deleted' });
+            const user = result[0];
+            if (user.isEmailVerified) {
+                generateAndSetAuthCookies(res, user);
+                res.status(200).json({ success: true, message: 'Refresh token successful' });
+            } else {
+                res.status(401).json({ success: false, message: 'User is not verified' });
+            }
+        });
+    } catch (err) {
+        if (err instanceof jwt.TokenExpiredError) {
+            return res.status(401).json({ success: false, message: 'Refresh token has expired' });
+        }
+        next(err);
+    }
+};
+
+export const profile = (req, res) => {
+    res.status(200).json({ success: true, message: 'Profile fetched successfully', user: req.user });
+};
