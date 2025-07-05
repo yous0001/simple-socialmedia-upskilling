@@ -3,6 +3,7 @@ import express from "express";
 import chalk from "chalk";
 import db_connection from "./src/configs/db_connection.config.js";
 import { userRouter } from "./src/routes/user.routes.js";
+import { globalResponse } from "./src/middlewares/general-response.middleware.js";
 
 config({path:"./.env"})
 
@@ -12,6 +13,10 @@ app.use(express.json())
 
 app.use('/auth',userRouter)
 
+
+
+
+app.use(globalResponse)
 export const dbConnection=await db_connection();
 
 app.get('/', (req, res) => {

@@ -1,3 +1,5 @@
+import { dbConnection } from "../../index.js";
+
 const checkIfEmailExists = (req, res, next) => {
     const { email } = req.body;
     dbConnection.query(`SELECT * FROM users WHERE email = ?`, [email], (err, result) => {

@@ -1,4 +1,5 @@
 import { dbConnection } from './../../index.js';
+import bcrypt from 'bcrypt'
 
 export const register=(req,res)=>{
     const {name,email,password}=req.body
