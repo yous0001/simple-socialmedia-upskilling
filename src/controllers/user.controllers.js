@@ -1,9 +1,9 @@
-import { generateAndSendVerificationEmail } from '../services/user.services.js';
+import { generateAndSendVerificationEmail, generateAndSetAuthCookies } from '../services/user.services.js';
 import { dbConnection } from './../../index.js';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 
-export const register = async (req, res,next) => {
+export const register = async (req, res, next) => {
     const { name, email, password } = req.body
     const hashedPassword = bcrypt.hashSync(password, 10)
     dbConnection.query(`INSERT INTO users(name,email,password) VALUES(?,?,?)`, [name, email, hashedPassword],
@@ -15,7 +15,7 @@ export const register = async (req, res,next) => {
     )
     const isEmailSent = await generateAndSendVerificationEmail({ name, email })
     if (!isEmailSent) {
-        next(new Error('Error sending verification email',{cause:500}))
+        next(new Error('Error sending verification email', { cause: 500 }))
     }
 
     res.status(201).json({ success: true, message: "user created successfully" })
@@ -30,8 +30,10 @@ export const login = (req, res) => {
             res.status(500).json({ success: false, message: 'Error checking email' });
         } else if (result.length > 0) {
             //user exists check if password correct
-            const isPasswordValid = bcrypt.compareSync(password, result[0].password);
+            const user = result[0]
+            const isPasswordValid = bcrypt.compareSync(password, user.password);
             if (isPasswordValid) {
+                generateAndSetAuthCookies(res, user);
                 res.status(200).json({ success: true, message: 'Login successful' });
             } else {
                 res.status(400).json({ success: false, message: 'invalid credentials' });
@@ -55,3 +57,9 @@ export const verifyEmail = async (req, res) => {
         }
     });
 }
+
+export const logout = (req, res) => {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+    res.status(200).json({ success: true, message: 'Logged out successfully' });
+};
