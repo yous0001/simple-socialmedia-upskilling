@@ -7,6 +7,7 @@ const userRouter=Router()
 
 userRouter.post('/register',validationMiddleware(userValidator.registerSchema) ,checkIfEmailExists,userController.register)
 userRouter.post('/login',validationMiddleware(userValidator.loginSchema) ,userController.login)
+userRouter.get('/verify-email/:token',userController.verifyEmail)
 
 export {
     userRouter

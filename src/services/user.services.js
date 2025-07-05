@@ -7,7 +7,7 @@ export const generateAndSendVerificationEmail = async ({name,email}) => {
     const isEmailSent=await sendmailservice({
         to:email,
         subject:"Email verification",
-        message:generateVerificationEmail(name,email,`http://localhost:3000/verify-email/${verificationToken}`)
+        message:generateVerificationEmail(name,email,`http://localhost:3000/auth/verify-email/${verificationToken}`)
     })
     return isEmailSent
 }

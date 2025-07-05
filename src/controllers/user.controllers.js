@@ -1,6 +1,7 @@
 import { generateAndSendVerificationEmail } from '../services/user.services.js';
 import { dbConnection } from './../../index.js';
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 export const register = async (req, res,next) => {
     const { name, email, password } = req.body
@@ -38,6 +39,19 @@ export const login = (req, res) => {
         } else {
             //user does not exist
             res.status(400).json({ success: false, message: 'invalid credentials' });
+        }
+    });
+}
+
+export const verifyEmail = async (req, res) => {
+    const { token } = req.params;
+    const decodedToken = jwt.verify(token, process.env.JWT_VERIFICATION_SECRET);
+    const { email } = decodedToken;
+    dbConnection.query(`UPDATE users SET isEmailVerified = 1 WHERE email = ?`, [email], (err, result) => {
+        if (err) {
+            next(err)
+        } else {
+            res.status(200).json({ success: true, message: 'Email verified successfully' });
         }
     });
 }
