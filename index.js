@@ -2,6 +2,7 @@ import { config } from "dotenv";
 import express from "express";
 import chalk from "chalk";
 import db_connection from "./src/configs/db_connection.config.js";
+import { userRouter } from "./src/routes/user.routes.js";
 
 config({path:"./.env"})
 
@@ -9,7 +10,7 @@ const app=express();
 const port=process.env.PORT || 3000;
 app.use(express.json())
 
-
+app.use('/auth',userRouter)
 
 export const dbConnection=await db_connection();
 
