@@ -1,6 +1,6 @@
 import { dbConnection } from "../../index.js";
 
-export const createPost = (req, res) => {
+export const createPost = (req, res,next) => {
     const user=req.user
     const {title,description}=req.body
     if(!user.isEmailVerified){
@@ -14,8 +14,8 @@ export const createPost = (req, res) => {
             [user.id, title, description],
             (err, result) => {
                 if (err) {
-                    console.error(err);
-                    res.status(500).json({ success: false, message: 'Error creating post' });
+    
+                    res.status(500).json({ success: false, message: 'Error creating post',error:err.message });
                 }
             }
         );
@@ -26,8 +26,7 @@ export const getMyPosts = (req, res) => {
     const user=req.user
     dbConnection.query(`SELECT * FROM posts WHERE user_id = ?`, [user.id], (err, result) => {
         if (err) {
-            console.error(err);
-            res.status(500).json({ success: false, message: 'Error getting posts' });
+            res.status(500).json({ success: false, message: 'Error getting posts',error:err.message });
         }
         res.status(200).json({ success: true, message: 'Posts fetched successfully', posts: result });
     });
@@ -36,9 +35,32 @@ export const getMyPosts = (req, res) => {
 export const getAllPosts = (req, res) => {
     dbConnection.query(`SELECT * FROM posts`, (err, result) => {
         if (err) {
-            console.error(err);
-            res.status(500).json({ success: false, message: 'Error getting posts' });
+            res.status(500).json({ success: false, message: 'Error getting posts',error:err.message });
         }
         res.status(200).json({ success: true, message: 'Posts fetched successfully', posts: result });
+    });
+};
+
+export const getPost = (req, res) => {
+    const { id } = req.params;
+    dbConnection.query(`SELECT * FROM posts WHERE id = ?`, [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ success: false, message: 'Error getting post', error: err.message });
+        }
+        res.status(200).json({ success: true, message: 'Post fetched successfully', post: result[0] });
+    });
+};
+
+export const deletePost = (req, res) => {
+    const { id } = req.params;
+    const user=req.user
+    if(user.id!==id){
+        return res.status(401).json({ success: false, message: 'You are not authorized to delete this post' });
+    }
+    dbConnection.query(`DELETE FROM posts WHERE id = ?`, [id], (err, result) => {
+        if (err) {
+            res.status(500).json({ success: false, message: 'Error deleting post',error:err.message });
+        }
+        res.status(200).json({ success: true, message: 'Post deleted successfully' });
     });
 };
