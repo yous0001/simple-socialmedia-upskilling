@@ -5,3 +5,5 @@ import { auth } from "../middlewares/auth.middleware.js";
 export const postRouter = Router()
 
 postRouter.post('/',auth, postController.createPost)
+postRouter.get('/my-posts',auth, postController.getMyPosts)
+postRouter.get('/',auth, postController.getMyPosts)
