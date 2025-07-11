@@ -6,6 +6,7 @@ import { userRouter } from "./src/routes/user.routes.js";
 import { globalResponse } from "./src/middlewares/general-response.middleware.js";
 import cookieParser from "cookie-parser";
 import { postRouter } from "./src/routes/post.routes.js";
+import { friendRouter } from "./src/routes/friend.routes.js";
 
 config({path:"./.env"})
 
@@ -16,6 +17,7 @@ app.use(cookieParser())
 
 app.use('/auth',userRouter)
 app.use('/post',postRouter)
+app.use('/friend',friendRouter)
 
 
 
