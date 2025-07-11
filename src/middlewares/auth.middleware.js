@@ -12,7 +12,7 @@ export const auth = async (req, res, next) => {
         }
 
         const decoded = await jwt.verify(token, ACCESS_TOKEN_SECRET)
-        dbConnection.query(`SELECT name,email,id FROM users WHERE id = ?`, [decoded.id], (err, result) => {
+        dbConnection.query(`SELECT name,email,id,isEmailVerified FROM users WHERE id = ?`, [decoded.id], (err, result) => {
             if (err) {
                 console.error(err);
                 res.status(500).json({ success: false, message: 'Error checking email' });
