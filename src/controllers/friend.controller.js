@@ -56,3 +56,20 @@ export const rejectFriendRequest = (req, res) => {
         res.json({ success: true, message: 'Friend request rejected' });
     });
 };
+
+export const getIncomingRequests = (req, res) => {
+    const userId = req.user.id;
+
+    const sql = `
+    SELECT u.id, u.name, u.email
+    FROM friendships f
+    JOIN users u ON f.requester_id = u.id
+    WHERE f.addressee_id = ? AND f.status = 'pending'
+    `;
+    dbConnection.query(sql, [userId], (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err.message });
+
+        res.json({ success: true, requests: results });
+    });
+};
+
